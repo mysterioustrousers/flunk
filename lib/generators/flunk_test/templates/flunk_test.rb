@@ -1,11 +1,12 @@
 require 'test_helper'
 
-class <%= class_name %>Test < Flunk
+class <%= class_name.pluralize %>Test < Flunk
 
   setup do
   end
 
-  test "Test Title"
+  # Write tests that should succeed to make sure the required functionality works.
+  test "Test Title" do
     desc      "A description of the function this tests"
     path      "resource/:id"
     method    :get
@@ -18,7 +19,7 @@ class <%= class_name %>Test < Flunk
   end
 
 
-
+  # Write a test that SHOULD fail to ensure your application handles bad requests gracefully.
   flunk "Test Title", "Why it flunks" do
     path      "/resource/:id"
     method    :get
