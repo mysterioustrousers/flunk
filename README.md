@@ -1,7 +1,7 @@
 Flunk
 =====
 
-A gem for testing a Ruby on Rails web APIs by simulating a client.
+A gem for testing Ruby on Rails web APIs by simulating a client.
 
 
 ### Installation
@@ -34,7 +34,7 @@ Once you call `assertions`, the request is fired and a `result` method is availa
 It's your typical rails integration test, but inherits from Flunk:
 
     class UsersTest < Flunk
-    
+
       setup do
       	@user = FactoryGirl.create(:user)
       end
@@ -56,7 +56,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
           assert_equal 1, user.languages.count
         }
       end
-      
+
       test "Log In" do
         desc      "Obtain a users API token by logging in with their username and password"
       	path			"login"
@@ -67,7 +67,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
           assert_not_nil result[:api_token]
         }
       end
-      
+
       test "Log In With Email" do
       	path			"login"
       	method		:get
@@ -77,7 +77,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
           assert_not_nil result[:api_token]
         }
       end
-      
+
       test "Read User" do
         desc      "Read a users information."
         path      "account"
@@ -85,7 +85,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         username  @user.api_token
         status    :ok
       end
-      
+
       test "Update User" do
         desc      "Update the username, e-mail, password and/or name"
         path      "account"
@@ -97,7 +97,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
           assert_equal result[:username], username
         }
       end
-      
+
       test "Update E-mail" do
         path      "account"
         method    :put
@@ -108,7 +108,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
           assert_equal result[:email], email
         }
       end
-      
+
       test "Update User Password" do
         path      "account"
         method    :put
@@ -116,7 +116,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         body      user: { password: Faker::Lorem.characters(10) }
         status    :ok
       end
-      
+
       test "Update Name" do
         path      "account"
         method    :put
@@ -127,19 +127,19 @@ You write tests that SHOULD pass to test your app's basic functionality all work
           assert_equal result[:name], name
         }
       end
-      
+
       test "Delete User" do
         path      "account"
         method    :delete
         username  @user.api_token
         status    :ok
       end
-      
+
 
 
 Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests correctly/gracefully:
 
-      
+
       flunk "Create User", "Missing username" do
         desc      "Attempting to create a user without a username."
         path      "signup"
@@ -147,21 +147,21 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user, username: nil)
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "Username already taken" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, username: @user.username)
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "Invalid username" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, username: "a234$2aa" )
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "Missing e-mail" do
         desc      "Attempting to create a user without a e-mail."
         path      "signup"
@@ -169,7 +169,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user, email: nil)
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "E-mail already taken" do
         desc      "Attempting to create a user with an e-mail that's already taken."
         path      "signup"
@@ -177,14 +177,14 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user, email: @user.email)
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "Invalid e-mail" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, email: "aaaa@aakk")
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "Missing password" do
         desc      "Attempting to create a user without a password."
         path      "signup"
@@ -192,17 +192,17 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user, password: nil)
         status    :unprocessable_entity
       end
-      
+
       flunk "Create User", "Missing name" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, name: nil)
         status    :unprocessable_entity
       end
-      
-      
-      
-      
+
+
+
+
       flunk "Log In", "No username" do
         desc       "Attempting to obtain an API token with the wrong password"
         path       "login"
@@ -210,7 +210,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body       password: "a"
         status     :unauthorized
       end
-      
+
       flunk "Log In", "Wrong password" do
         desc       "Attempting to obtain an API token with the wrong password"
         path       "login"
@@ -218,20 +218,20 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body       username: @user.username, password: "a"
         status     :unauthorized
       end
-      
-      
-      
-      
+
+
+
+
       flunk "Read User", "Wrong API token" do
         path       "login"
         method     :get
         username   "a"
         status     :unauthorized
       end
-      
-      
-      
-      
+
+
+
+
       flunk "Update User", "Wrong password" do
         path      "account"
         method    :put
@@ -239,7 +239,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user)
         status    :unauthorized
       end
-      
+
       flunk "Update User", "Username already taken" do
         path      "account"
         method    :put
@@ -248,7 +248,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: { username: u.username }
         status    :unprocessable_entity
       end
-      
+
        flunk "Update User", "Invalid username" do
         path      "account"
         method    :put
@@ -256,7 +256,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: { username: "a234$2aa" }
         status    :unprocessable_entity
       end
-      
+
       flunk "Update User", "E-mail already taken" do
         desc      "Attempting to update a user with an e-mail that's already taken."
         path      "account"
@@ -266,7 +266,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: { email: u.email }
         status    :unprocessable_entity
       end
-      
+
       flunk "Update User", "Invalid e-mail" do
         desc      "Attempting to update the user with an invalid e-mail"
         path      "account"
@@ -275,10 +275,10 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: { email: "aaaa@aakk" }
         status    :unprocessable_entity
       end
-      
-        
-      
-      
+
+
+
+
       flunk "Delete User", "Wrong password" do
         path      "account"
         method    :delete
@@ -286,7 +286,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user)
         status    :unauthorized
       end
-      
+
     end
 
 ### Generator
