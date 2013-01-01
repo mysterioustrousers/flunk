@@ -1,8 +1,8 @@
 Description:
-    Explain the generator
+    This generates an flunk rails integration test.
 
 Example:
-    rails generate flunk_test Thing
+    rails generate flunk_test Title
 
     This will create:
-        what/will/it/create
+      test/integration/titles_test.rb
