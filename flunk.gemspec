@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name                = "flunk"
-  s.version             = "0.0.3"
+  s.version             = "0.0.4"
   s.platform            = Gem::Platform::RUBY
   s.authors             = ["Adam Kirk"]
   s.email               = %q{atomkirk@gmail.com}
@@ -13,4 +13,5 @@ Gem::Specification.new do |s|
   s.require_paths       = ["lib"]
 
   s.required_ruby_version = ">= 1.9.2"
+  s.add_dependency 'actionpack'
 end
