@@ -1,3 +1,5 @@
+require 'rails/test_help'
+
 class Flunk < ActionDispatch::IntegrationTest
 
   def self.test(name, &block)
