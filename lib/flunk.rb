@@ -16,10 +16,6 @@ class Flunk < ActionDispatch::IntegrationTest
     test("FLUNKED: #{action} (#{failure_reason})", &block)
   end
 
-  def self.base_url=(base_url)
-    @@base_url = base_url
-  end
-
   def result
     if !@result_fetched
       @result_fetched = true
@@ -27,10 +23,6 @@ class Flunk < ActionDispatch::IntegrationTest
       if @username || @password
         @headers ||= {}
         @headers["HTTP_AUTHORIZATION"] = "Basic #{Base64.encode64(@username.to_s + ":" + @password.to_s)}".strip
-      end
-
-      if @@base_url
-        @path = File.join(@@base_url, @path)
       end
 
       send @method, @path, @body, @headers
