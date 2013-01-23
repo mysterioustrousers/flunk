@@ -1,0 +1,14 @@
+PATH
+  remote: .
+  specs:
+    flunk (0.0.2)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  flunk!
