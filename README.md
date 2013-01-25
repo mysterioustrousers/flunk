@@ -41,7 +41,7 @@ It's your typical rails integration test, but inherits from Flunk:
 
 You write tests that SHOULD pass to test your app's basic functionality all works:
 
-      test "Create User" do
+      test "User", "Create" do
         desc      "Creating a new Langwich user."
       	path			"signup"
       	method		:post
@@ -57,7 +57,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "Log In" do
+      test "User", "Log In" do
         desc      "Obtain a users API token by logging in with their username and password"
       	path			"login"
       	method		:get
@@ -68,7 +68,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "Log In With Email" do
+      test "User", "Log In With Email" do
       	path			"login"
       	method		:get
       	body			username: @user.email, password: @user.password
@@ -78,7 +78,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "Read User" do
+      test "User", "Read" do
         desc      "Read a users information."
         path      "account"
         method    :get
@@ -86,7 +86,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         status    :ok
       end
 
-      test "Update User" do
+      test "User", "Update" do
         desc      "Update the username, e-mail, password and/or name"
         path      "account"
         method    :put
@@ -98,7 +98,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "Update E-mail" do
+      test "User", "Update E-mail" do
         path      "account"
         method    :put
         username  @user.api_token
@@ -109,7 +109,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "Update User Password" do
+      test "User", "Update User Password" do
         path      "account"
         method    :put
         username  @user.api_token
@@ -117,7 +117,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         status    :ok
       end
 
-      test "Update Name" do
+      test "User", "Update Name" do
         path      "account"
         method    :put
         username  @user.api_token
@@ -128,7 +128,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "Delete User" do
+      test "User", "Destroy" do
         path      "account"
         method    :delete
         username  @user.api_token
@@ -140,7 +140,7 @@ You write tests that SHOULD pass to test your app's basic functionality all work
 Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests correctly/gracefully:
 
 
-      flunk "Create User", "Missing username" do
+      flunk "User", "Create", "Missing username" do
         desc      "Attempting to create a user without a username."
         path      "signup"
         method    :post
@@ -148,21 +148,21 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "Username already taken" do
+      flunk "User", "Create", "Username already taken" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, username: @user.username)
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "Invalid username" do
+      flunk "User", "Create", "Invalid username" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, username: "a234$2aa" )
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "Missing e-mail" do
+      flunk "User", "Create", "Missing e-mail" do
         desc      "Attempting to create a user without a e-mail."
         path      "signup"
         method    :post
@@ -170,7 +170,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "E-mail already taken" do
+      flunk "User", "Create", "E-mail already taken" do
         desc      "Attempting to create a user with an e-mail that's already taken."
         path      "signup"
         method    :post
@@ -178,14 +178,14 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "Invalid e-mail" do
+      flunk "User", "Create", "Invalid e-mail" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, email: "aaaa@aakk")
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "Missing password" do
+      flunk "User", "Create", "Missing password" do
         desc      "Attempting to create a user without a password."
         path      "signup"
         method    :post
@@ -193,7 +193,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-      flunk "Create User", "Missing name" do
+      flunk "User", "Create", "Missing name" do
         path      "signup"
         method    :post
         body      user: FactoryGirl.attributes_for(:user, name: nil)
@@ -203,7 +203,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
 
 
 
-      flunk "Log In", "No username" do
+      flunk "User", "Log In", "No username" do
         desc       "Attempting to obtain an API token with the wrong password"
         path       "login"
         method     :get
@@ -211,7 +211,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status     :unauthorized
       end
 
-      flunk "Log In", "Wrong password" do
+      flunk "User", "Log In", "Wrong password" do
         desc       "Attempting to obtain an API token with the wrong password"
         path       "login"
         method     :get
@@ -222,7 +222,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
 
 
 
-      flunk "Read User", "Wrong API token" do
+      flunk "User", "Read", "Wrong API token" do
         path       "login"
         method     :get
         username   "a"
@@ -232,7 +232,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
 
 
 
-      flunk "Update User", "Wrong password" do
+      flunk "User", "Update", "Wrong password" do
         path      "account"
         method    :put
         username  "a"
@@ -240,7 +240,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unauthorized
       end
 
-      flunk "Update User", "Username already taken" do
+      flunk "User", "Update", "Username already taken" do
         path      "account"
         method    :put
         username  @user.api_token
@@ -249,7 +249,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-       flunk "Update User", "Invalid username" do
+       flunk "User", "Update", "Invalid username" do
         path      "account"
         method    :put
         username  @user.api_token
@@ -257,7 +257,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-      flunk "Update User", "E-mail already taken" do
+      flunk "User", "Update", "E-mail already taken" do
         desc      "Attempting to update a user with an e-mail that's already taken."
         path      "account"
         method    :put
@@ -267,7 +267,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         status    :unprocessable_entity
       end
 
-      flunk "Update User", "Invalid e-mail" do
+      flunk "User", "Update", "Invalid e-mail" do
         desc      "Attempting to update the user with an invalid e-mail"
         path      "account"
         method    :put
@@ -279,7 +279,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
 
 
 
-      flunk "Delete User", "Wrong password" do
+      flunk "User", "Delete", "Wrong password" do
         path      "account"
         method    :delete
         username  "a"
