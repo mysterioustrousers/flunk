@@ -6,7 +6,7 @@ class <%= class_name.pluralize %>Test < Flunk
   end
 
   # Write tests that should succeed to make sure the required functionality works.
-  test "Test Title" do
+  test "Resource", "Action" do
     desc      "A description of the function this tests"
     path      "resource/:id"
     method    :get
@@ -20,7 +20,7 @@ class <%= class_name.pluralize %>Test < Flunk
 
 
   # Write a test that SHOULD fail to ensure your application handles bad requests gracefully.
-  flunk "Test Title", "Why it flunks" do
+  flunk "Resource", "Action, "Why it flunks" do
     path      "/resource/:id"
     method    :get
     status    :unauthorized

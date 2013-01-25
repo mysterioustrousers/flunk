@@ -2,18 +2,24 @@ require 'rails/test_help'
 
 class Flunk < ActionDispatch::IntegrationTest
 
-  def self.test(name, &block)
+  def self.test(resource, action, &block)
     new_proc = Proc.new do
       instance_eval(&block)
       result
       @assertions.call unless @assertions.nil?
     end
 
+    if !action || !resource
+      name = action || resource
+    else
+      name = resource + ": " + action
+    end
+
     super name, &new_proc
   end
 
-  def self.flunk(action, failure_reason, &block)
-    test("FLUNKED: #{action} (#{failure_reason})", &block)
+  def self.flunk(resource, action, failure_reason, &block)
+    test("FLUNKED! #{resource}: #{action} (#{failure_reason})", nil, &block)
   end
 
   def result
