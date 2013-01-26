@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Size:</b>
+  <%= @banana.size %>
+</p>
+
+<p>
+  <b>Weight:</b>
+  <%= @banana.weight %>
+</p>
+
+<p>
+  <b>Color:</b>
+  <%= @banana.color %>
+</p>
+
+
+<%= link_to 'Edit', edit_banana_path(@banana) %> |
+<%= link_to 'Back', bananas_path %>

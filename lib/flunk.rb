@@ -4,8 +4,8 @@ class Flunk < ActionDispatch::IntegrationTest
 
   def self.test(resource, action, &block)
     new_proc = Proc.new do
-      @before.call unless @before.nil?
       instance_eval(&block)
+      @before.call unless @before.nil?
       result
       @after.call unless @after.nil?
     end

@@ -1,0 +1,29 @@
+<%= form_for(@banana) do |f| %>
+  <% if @banana.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@banana.errors.count, "error") %> prohibited this banana from being saved:</h2>
+
+      <ul>
+      <% @banana.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :size %><br />
+    <%= f.number_field :size %>
+  </div>
+  <div class="field">
+    <%= f.label :weight %><br />
+    <%= f.number_field :weight %>
+  </div>
+  <div class="field">
+    <%= f.label :color %><br />
+    <%= f.text_field :color %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
