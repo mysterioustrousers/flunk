@@ -13,14 +13,17 @@ class <%= class_name.pluralize %>Test < Flunk
     username  @user.username
     password  @user.password
     status    :ok
-    assertions {
+    before {
+      assert_equal 1, 1
+    }
+    after {
       assert_equal 2, 2
     }
   end
 
 
   # Write a test that SHOULD fail to ensure your application handles bad requests gracefully.
-  flunk "Resource", "Action, "Why it flunks" do
+  flunk "Resource", "Action", "Why it flunks" do
     path      "/resource/:id"
     method    :get
     status    :unauthorized

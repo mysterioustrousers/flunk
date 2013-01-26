@@ -47,7 +47,10 @@ You write tests that SHOULD pass to test your app's basic functionality all work
       	method		:post
       	body			user: attrs = FactoryGirl.attributes_for(:user)
       	status		:created
-        assertions {
+        before {
+          assert_equal 0, user.languages.count
+        }
+        after {
           assert_equal result[:name],       attrs[:name]
           assert_equal result[:username],   attrs[:username]
           assert_equal result[:email],      attrs[:email]
@@ -57,23 +60,12 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         }
       end
 
-      test "User", "Log In" do
-        desc      "Obtain a users API token by logging in with their username and password"
-      	path			"login"
-      	method		:get
-      	body			username: @user.username, password: @user.password
-      	status		:ok
-        assertions {
-          assert_not_nil result[:api_token]
-        }
-      end
-
       test "User", "Log In With Email" do
       	path			"login"
       	method		:get
       	body			username: @user.email, password: @user.password
       	status		:ok
-        assertions {
+        after {
           assert_not_nil result[:api_token]
         }
       end
@@ -85,56 +77,6 @@ You write tests that SHOULD pass to test your app's basic functionality all work
         username  @user.api_token
         status    :ok
       end
-
-      test "User", "Update" do
-        desc      "Update the username, e-mail, password and/or name"
-        path      "account"
-        method    :put
-        username  @user.api_token
-        body      user: { username: username = Faker::Internet.user_name }
-        status    :ok
-        assertions {
-          assert_equal result[:username], username
-        }
-      end
-
-      test "User", "Update E-mail" do
-        path      "account"
-        method    :put
-        username  @user.api_token
-        body      user:  { email: email = Faker::Internet.email }
-        status    :ok
-        assertions {
-          assert_equal result[:email], email
-        }
-      end
-
-      test "User", "Update User Password" do
-        path      "account"
-        method    :put
-        username  @user.api_token
-        body      user: { password: Faker::Lorem.characters(10) }
-        status    :ok
-      end
-
-      test "User", "Update Name" do
-        path      "account"
-        method    :put
-        username  @user.api_token
-        body      user: { name: name = Faker::Name.first_name }
-        status    :ok
-        assertions {
-          assert_equal result[:name], name
-        }
-      end
-
-      test "User", "Destroy" do
-        path      "account"
-        method    :delete
-        username  @user.api_token
-        status    :ok
-      end
-
 
 
 Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests correctly/gracefully:
@@ -154,139 +96,6 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
         body      user: FactoryGirl.attributes_for(:user, username: @user.username)
         status    :unprocessable_entity
       end
-
-      flunk "User", "Create", "Invalid username" do
-        path      "signup"
-        method    :post
-        body      user: FactoryGirl.attributes_for(:user, username: "a234$2aa" )
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Create", "Missing e-mail" do
-        desc      "Attempting to create a user without a e-mail."
-        path      "signup"
-        method    :post
-        body      user: FactoryGirl.attributes_for(:user, email: nil)
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Create", "E-mail already taken" do
-        desc      "Attempting to create a user with an e-mail that's already taken."
-        path      "signup"
-        method    :post
-        body      user: FactoryGirl.attributes_for(:user, email: @user.email)
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Create", "Invalid e-mail" do
-        path      "signup"
-        method    :post
-        body      user: FactoryGirl.attributes_for(:user, email: "aaaa@aakk")
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Create", "Missing password" do
-        desc      "Attempting to create a user without a password."
-        path      "signup"
-        method    :post
-        body      user: FactoryGirl.attributes_for(:user, password: nil)
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Create", "Missing name" do
-        path      "signup"
-        method    :post
-        body      user: FactoryGirl.attributes_for(:user, name: nil)
-        status    :unprocessable_entity
-      end
-
-
-
-
-      flunk "User", "Log In", "No username" do
-        desc       "Attempting to obtain an API token with the wrong password"
-        path       "login"
-        method     :get
-        body       password: "a"
-        status     :unauthorized
-      end
-
-      flunk "User", "Log In", "Wrong password" do
-        desc       "Attempting to obtain an API token with the wrong password"
-        path       "login"
-        method     :get
-        body       username: @user.username, password: "a"
-        status     :unauthorized
-      end
-
-
-
-
-      flunk "User", "Read", "Wrong API token" do
-        path       "login"
-        method     :get
-        username   "a"
-        status     :unauthorized
-      end
-
-
-
-
-      flunk "User", "Update", "Wrong password" do
-        path      "account"
-        method    :put
-        username  "a"
-        body      user: FactoryGirl.attributes_for(:user)
-        status    :unauthorized
-      end
-
-      flunk "User", "Update", "Username already taken" do
-        path      "account"
-        method    :put
-        username  @user.api_token
-        u = FactoryGirl.create(:user)
-        body      user: { username: u.username }
-        status    :unprocessable_entity
-      end
-
-       flunk "User", "Update", "Invalid username" do
-        path      "account"
-        method    :put
-        username  @user.api_token
-        body      user: { username: "a234$2aa" }
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Update", "E-mail already taken" do
-        desc      "Attempting to update a user with an e-mail that's already taken."
-        path      "account"
-        method    :put
-        username  @user.api_token
-        u = FactoryGirl.create(:user)
-        body      user: { email: u.email }
-        status    :unprocessable_entity
-      end
-
-      flunk "User", "Update", "Invalid e-mail" do
-        desc      "Attempting to update the user with an invalid e-mail"
-        path      "account"
-        method    :put
-        username  @user.api_token
-        body      user: { email: "aaaa@aakk" }
-        status    :unprocessable_entity
-      end
-
-
-
-
-      flunk "User", "Delete", "Wrong password" do
-        path      "account"
-        method    :delete
-        username  "a"
-        body      user: FactoryGirl.attributes_for(:user)
-        status    :unauthorized
-      end
-
     end
 
 ### Generator

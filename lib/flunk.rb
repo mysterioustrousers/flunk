@@ -4,9 +4,10 @@ class Flunk < ActionDispatch::IntegrationTest
 
   def self.test(resource, action, &block)
     new_proc = Proc.new do
+      @before.call unless @before.nil?
       instance_eval(&block)
       result
-      @assertions.call unless @assertions.nil?
+      @after.call unless @after.nil?
     end
 
     if !action || !resource
@@ -91,8 +92,12 @@ class Flunk < ActionDispatch::IntegrationTest
     @desc = desc
   end
 
-  def assertions(&block)
-    @assertions = block
+  def before(&block)
+    @before = block
+  end
+
+  def after(&block)
+    @after = block
   end
 
   def rec_symbolize(obj)
