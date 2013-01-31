@@ -36,7 +36,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       @response = response
 
-      assert_response @status
+      assert_response @status, @response.body
 
       if response.body.length > 2
         if response.content_type == 'application/json'
