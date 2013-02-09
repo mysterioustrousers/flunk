@@ -38,7 +38,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       assert_response @status, @response.body
 
-      if response.body.length > 2
+      if response.body != nil
         if response.content_type == 'application/json'
           json = ActiveSupport::JSON.decode(response.body)
           rec_symbolize( json )
