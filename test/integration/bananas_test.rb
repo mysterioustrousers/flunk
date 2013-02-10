@@ -8,15 +8,20 @@ class BananasTest < Flunk
 
   # Write tests that should succeed to make sure the required functionality works.
   test "Banana", "Create" do
+    before {
+      @count = 1
+      p "before was called"
+    }
+
+    p @count
     desc      "Create a Banana"
     path      "bananas"
     method    :post
     status    :created
     body      banana: { weight: 2 }
-    before {
-      p "before was called"
-    }
+
     after {
+      assert_equal @count, 1
       p "after was called"
     }
   end

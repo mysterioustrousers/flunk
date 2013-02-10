@@ -5,9 +5,8 @@ class Flunk < ActionDispatch::IntegrationTest
   def self.test(resource, action, &block)
     new_proc = Proc.new do
       instance_eval(&block)
-      @before.call unless @before.nil?
       result
-      @after.call unless @after.nil?
+      instance_eval(&@after) unless @after.nil?
     end
 
     if !action || !resource
@@ -38,7 +37,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       assert_response @status, @response.body
 
-      if response.body != nil
+      unless response.body.blank?
         if response.content_type == 'application/json'
           json = ActiveSupport::JSON.decode(response.body)
           rec_symbolize( json )
@@ -94,6 +93,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
   def before(&block)
     @before = block
+    instance_eval(&@before)
   end
 
   def after(&block)
