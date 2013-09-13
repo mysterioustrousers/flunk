@@ -16,16 +16,16 @@ We write mostly JSON APIs using Rails, not your traditional web app, so we wante
 
 ### Usage
 
-In each test block you call a series of methods [`desc`, `path`, `method`, `username`, `password`, `body`, `status`, `assertions`] as necessary.
+In each test block you call a series of methods as necessary:
 
-`desc`: In the future, a documentation generator will be added and this will be used to determine if the test should be documented as an API method.
-`path`: The relative URL for the resource.
-`method`: :get, :post, :put or :delete
-`username`: For authentication using basic auth.
-`password`: For authentication using basic auth.
-`body`: The body of the request.
-`status`: This method actually acts like an assertion. It is what the status of the response SHOULD be. An error will be thrown if it doesn't match.
-`assertions`: A block of of assertions you call to verify the response was what it should have been.
+* `desc`: In the future, a documentation generator will be added and this will be used to determine if the test should be documented as an API method.
+* `path`: The relative URL for the resource.
+* `method`: :get, :post, :put or :delete
+* `username`: For authentication using basic auth.
+* `password`: For authentication using basic auth.
+* `body`: The body of the request.
+* `status`: This method actually acts like an assertion. It is what the status of the response SHOULD be. An error will be thrown if it doesn't match.
+* `assertions`: A block of of assertions you call to verify the response was what it should have been.
 
 Once you call `assertions`, the request is fired and a `result` method is available within the assertions block containing the response.
 
@@ -105,3 +105,12 @@ To generate a flunk test:
     rails g generate flunk_test User
 
 This will create an integration test: test/integration/users_test.rb
+
+
+### Testing
+
+Flunk is included as a submodule in our project [button](https://github.com/mysterioustrousers/button.git) and
+is used to test it. Please clone `button`, run `git submodule update --init --recursive` then `rake` to make
+sure the tests are passing for you before you begin. Then, make your changes in the flunk submodule, commit them
+and push them to your own fork and issue a pull request. Thanks!
+
