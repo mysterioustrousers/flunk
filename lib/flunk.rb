@@ -26,12 +26,12 @@ class Flunk < ActionDispatch::IntegrationTest
     if !@result_fetched
       @result_fetched = true
 
-      @username   ||= self.class.config.username
-      @password   ||= self.class.config.password
-      @auth_token ||= self.class.config.auth_token
-      @headers    ||= self.class.config.headers
-      @method     ||= self.class.config.method
-      @ssl        ||= self.class.config.ssl
+      @username   ||= self.class.config.read_username
+      @password   ||= self.class.config.read_password
+      @auth_token ||= self.class.config.read_auth_token
+      @headers    ||= self.class.config.read_headers
+      @method     ||= self.class.config.read_method
+      @ssl        ||= self.class.config.read_ssl
 
       if @username || @password
         @headers ||= {}
@@ -59,58 +59,85 @@ class Flunk < ActionDispatch::IntegrationTest
     @result
   end
 
-  attr_reader :desc
   def desc(desc)
     @desc = desc
   end
+  
+  def read_desc
+    @desc
+  end
 
-  attr_reader :path
   def path(path)
     @path = path
   end
 
-  attr_reader :method
+  def read_path
+    @path
+  end
+
   def method(method)
     @method = method
   end
 
-  attr_reader :username
+  def read_method
+    @method
+  end
+
   def username(username)
     @username = username
   end
 
-  attr_reader :password
+  def read_username
+    @username
+  end
+
   def password(password)
     @password = password
   end
 
-  attr_reader :auth_token
+  def read_password
+    @password
+  end
+
   def auth_token(auth_token)
     @auth_token = auth_token
   end
 
-  attr_reader :ssl
+  def read_auth_token
+    @auth_token
+  end
+
   def ssl(ssl)
     @ssl = ssl
   end
 
-  attr_reader :body
+  def read_ssl
+    @ssl
+  end
+
   def body(body)
     @body = body
   end
 
-  attr_reader :status
+  def read_body
+    @body
+  end
+
   def status(status)
     @status = status
   end
 
+  def read_status
+    @status
+  end
+
   def header(key, value)
     @headers ||= {}
-    @headers = self.class.config.headers.merge @headers
+    @headers = self.class.config.read_headers.merge @headers
     @headers[key] = value
   end
 
-  def headers
+  def read_headers
     @headers
   end
 
@@ -119,7 +146,7 @@ class Flunk < ActionDispatch::IntegrationTest
     @params[key] = value
   end
 
-  def params
+  def read_params
     @params
   end
 
