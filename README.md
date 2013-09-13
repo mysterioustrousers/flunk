@@ -29,6 +29,14 @@ In each test block you call a series of methods as necessary:
 
 Once you call `assertions`, the request is fired and a `result` method is available within the assertions block containing the response.
 
+### Generator
+
+To generate a flunk test:
+
+    rails g generate flunk_test User
+
+This will create an integration test: test/integration/users_test.rb
+
 ### Example
 
 It's your typical rails integration test, but inherits from Flunk:
@@ -98,13 +106,6 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
       end
     end
 
-### Generator
-
-To generate a flunk test:
-
-    rails g generate flunk_test User
-
-This will create an integration test: test/integration/users_test.rb
 
 
 ### Testing
