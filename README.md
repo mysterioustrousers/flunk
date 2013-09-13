@@ -33,7 +33,7 @@ Once you call `assertions`, the request is fired and a `result` method is availa
 
 To generate a flunk test:
 
-    rails g generate flunk_test User
+    rails g flunk_test User
 
 This will create an integration test: test/integration/users_test.rb
 
