@@ -7,15 +7,15 @@ class <%= class_name.pluralize %>Test < Flunk
 
   # Write tests that should succeed to make sure the required functionality works.
   test "Resource", "Action" do
+    before {
+      assert_equal 1, 1
+    }
     desc      "A description of the function this tests"
     path      "resource/:id"
     method    :get
     username  @user.username
     password  @user.password
     status    :ok
-    before {
-      assert_equal 1, 1
-    }
     after {
       assert_equal 2, 2
     }

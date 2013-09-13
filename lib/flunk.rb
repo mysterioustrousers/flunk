@@ -2,6 +2,7 @@ require 'rails/test_help'
 
 class Flunk < ActionDispatch::IntegrationTest
 
+
   def self.test(resource, action, &block)
     new_proc = Proc.new do
       instance_eval(&block)
@@ -25,6 +26,8 @@ class Flunk < ActionDispatch::IntegrationTest
   def result
     if !@result_fetched
       @result_fetched = true
+
+      p @@doc_file
 
       if @username || @password
         @headers ||= {}
@@ -108,6 +111,11 @@ class Flunk < ActionDispatch::IntegrationTest
       obj.map {|v| rec_symbolize(v) }
     end
     nil
+  end
+
+
+  def self.doc_file(doc_file)
+    @@doc_file = doc_file
   end
 
 end
