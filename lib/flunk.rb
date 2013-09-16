@@ -3,24 +3,40 @@ require 'rails/test_help'
 class Flunk < ActionDispatch::IntegrationTest
 
   def self.test(resource, action, &block)
+
+    if action.class == Hash
+      action = action[:action]
+      name = action[:name]
+    end
+  
     new_proc = Proc.new do
+      @resource ||= resource
+      @action   ||= action
       instance_eval(&block)
       result
       instance_eval(&@after) unless @after.nil?
     end
 
-    if !action || !resource
-      name = action || resource
-    else
-      name = resource + ": " + action
-    end
-
+    name = resource + ": " + action if name.nil?
     super name, &new_proc
   end
 
   def self.flunk(resource, action, failure_reason, &block)
-    test("FLUNKED! #{resource}: #{action} (#{failure_reason})", nil, &block)
+    name = "FLUNKED! #{resource}: #{action} (#{failure_reason})"
+    test(resource, { action: action, name: name }, &block)
   end
+
+  def self.runner(resource, action, name, &block)
+    new_proc = Proc.new do
+      @resource ||= resource
+      @action   ||= action
+      instance_eval(&block)
+      result
+      instance_eval(&@after) unless @after.nil?
+    end
+    super name, &new_proc
+  end
+
 
   def result
     if !@result_fetched
@@ -41,7 +57,12 @@ class Flunk < ActionDispatch::IntegrationTest
         @headers["HTTP_AUTHORIZATION"] = "Token token=\"#{@auth_token}\"".strip
       end
 
-      send @method, @path, @body, @headers
+      body = @body
+      if @body.class != String
+        body = @body.to_json 
+      end
+
+      send @method, @path, body, @headers
 
       @response = response
 
@@ -54,6 +75,12 @@ class Flunk < ActionDispatch::IntegrationTest
           @result = json
         end
       end
+
+      if not @desc.nil?
+        debugger if @resource.nil?
+        make_doc @resource, @action, @desc, @path, @method, @auth_token, @headers, @body, @status, @result
+      end
+      
     end
 
     @result
@@ -65,6 +92,14 @@ class Flunk < ActionDispatch::IntegrationTest
   
   def read_desc
     @desc
+  end
+
+  def base_url(base_url)
+    @base_url
+  end
+
+  def read_base_url
+    @base_url
   end
 
   def path(path)
@@ -150,6 +185,17 @@ class Flunk < ActionDispatch::IntegrationTest
     @params
   end
 
+  def doc_directory(doc_directory)
+    FileUtils.mkdir_p(doc_directory) unless File.exists?(doc_directory)
+    @doc_directory = doc_directory
+  end
+
+  def read_doc_directory
+    @doc_directory ||= "docs/flunk"
+    FileUtils.mkdir_p(@doc_directory) unless File.exists?(@doc_directory)
+    @doc_directory
+  end
+
 
 
 
@@ -168,10 +214,6 @@ class Flunk < ActionDispatch::IntegrationTest
 
   # global
 
-  def self.doc_file=(doc_file)
-    @@doc_file = doc_file
-  end
-
   def self.config
     @@config ||= self.new "FlunkConfig"
   end
@@ -188,6 +230,51 @@ class Flunk < ActionDispatch::IntegrationTest
       obj.map {|v| rec_symbolize(v) }
     end
     nil
+  end
+
+  def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response
+    body = body == Hash ? JSON.parse(body) : body
+    url = File.join(@@config.read_base_url.to_s, path.to_s)
+    contents = ""
+    contents += "# #{action.humanize}\n\n"
+    contents += "#{desc.humanize}\n\n"
+    contents += "## Request\n\n"
+    if not auth_token.nil?
+      contents += "- Requires Authentication\n"
+    end
+    contents += "- HTTP Method: #{method.to_s.upcase}\n"
+    contents += "- URL: #{url}\n"
+    if not body.nil?
+      contents += "- Body:\n\n```js\n#{JSON.pretty_generate(body)}\n```\n\n"
+    else
+      contents += "\n"
+    end
+    contents += "## Response\n\n"
+    contents += "- Status: #{status} #{status.to_s.humanize}\n"
+    if not response.nil?
+      contents += "- Body:\n\n```js\n#{JSON.pretty_generate(response)}\n```\n\n"
+    else
+      contents += "\n"
+    end
+    contents += "## Example\n\n"
+    contents += 
+"```bash
+curl -X #{method.to_s.upcase} \\\n"
+    headers.each do |key, value|      
+      contents += 
+"     -H \"#{key}: #{value}\" \\\n"
+    end
+    if not body.nil?
+      contents += 
+"     -d '#{body.to_json}' \\"
+    end
+    contents += 
+"     \"#{url}\"
+```"
+    resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
+    FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
+    file_path = File.join( resource_directory, "#{action.capitalize}.md" )
+    File.open(file_path, 'w') {|f| f.write(contents) }
   end
 
 end
