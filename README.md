@@ -107,6 +107,29 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
     end
 
 
+### Documentation Generation
+
+Flunk can generate and organize a folder structure of Markdown files documenting your API calls while it tests. 
+If you provide the `desc` for a test, a Markdown file will be created with all the information about that particular
+API endpoint. Finally, it will organize each Markdown file into a folder named for the resource it is acting upon.
+
+By default, if it comes across a test with a "desc", it will place the docs in `$RAILS_ROOT/docs/flunk/`. You can
+customize this by putting this into an initializer:
+
+    if Rails.env.test?
+      Flunk.config.doc_directory "docs/firehose-docs/api"
+    end
+
+The config method on the Flunk class returns a global Flunk instance, so you can set any property on it to be used
+as a default.
+
+At Firehose, we have a few JSON-only apps that we use Flunk to test, so we have a submodule at `docs/firehose-docs` in
+each app and each app has Flunk dump the docs into a folder for that app. The Firehose API app dumps into the subfolder
+`api`. This allows us to easily have Flunk write our docs for us into a folder that is part of it's own public repo
+that contains all our documentation for all of our apps.
+
+Here's an example of the Firehose Github repo that is our API docs: https://github.com/mysterioustrousers/firehose-docs
+
 
 ### Testing
 

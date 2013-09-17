@@ -5,8 +5,8 @@ class Flunk < ActionDispatch::IntegrationTest
   def self.test(resource, action, &block)
 
     if action.class == Hash
-      action = action[:action]
-      name = action[:name]
+      name    = action[:name]
+      action  = action[:action]
     end
   
     new_proc = Proc.new do
@@ -24,17 +24,6 @@ class Flunk < ActionDispatch::IntegrationTest
   def self.flunk(resource, action, failure_reason, &block)
     name = "FLUNKED! #{resource}: #{action} (#{failure_reason})"
     test(resource, { action: action, name: name }, &block)
-  end
-
-  def self.runner(resource, action, name, &block)
-    new_proc = Proc.new do
-      @resource ||= resource
-      @action   ||= action
-      instance_eval(&block)
-      result
-      instance_eval(&@after) unless @after.nil?
-    end
-    super name, &new_proc
   end
 
 
@@ -57,12 +46,7 @@ class Flunk < ActionDispatch::IntegrationTest
         @headers["HTTP_AUTHORIZATION"] = "Token token=\"#{@auth_token}\"".strip
       end
 
-      body = @body
-      if @body.class != String
-        body = @body.to_json 
-      end
-
-      send @method, @path, body, @headers
+      send @method, @path, @body, @headers
 
       @response = response
 
@@ -186,12 +170,17 @@ class Flunk < ActionDispatch::IntegrationTest
   end
 
   def doc_directory(doc_directory)
-    FileUtils.mkdir_p(doc_directory) unless File.exists?(doc_directory)
+    FileUtils.rm_r(doc_directory) if File.exists?(doc_directory)
+    FileUtils.mkdir_p(doc_directory) 
     @doc_directory = doc_directory
   end
 
+  def read_config_doc_directory
+    @doc_directory
+  end
+
   def read_doc_directory
-    @doc_directory ||= "docs/flunk"
+    @doc_directory = self.class.config.read_config_doc_directory || "docs/flunk"
     FileUtils.mkdir_p(@doc_directory) unless File.exists?(@doc_directory)
     @doc_directory
   end
@@ -233,7 +222,7 @@ class Flunk < ActionDispatch::IntegrationTest
   end
 
   def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response
-    body = body == Hash ? JSON.parse(body) : body
+    body = body.class == String ? JSON.parse(body) : body
     url = File.join(@@config.read_base_url.to_s, path.to_s)
     contents = ""
     contents += "# #{action.humanize}\n\n"
@@ -260,7 +249,7 @@ class Flunk < ActionDispatch::IntegrationTest
     contents += 
 "```bash
 curl -X #{method.to_s.upcase} \\\n"
-    headers.each do |key, value|      
+    headers.to_h.each do |key, value|      
       contents += 
 "     -H \"#{key}: #{value}\" \\\n"
     end
