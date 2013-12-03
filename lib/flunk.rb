@@ -61,7 +61,6 @@ class Flunk < ActionDispatch::IntegrationTest
       end
 
       if not @desc.nil?
-        debugger if @resource.nil?
         make_doc @resource, @action, @desc, @path, @method, @auth_token, @headers, @body, @status, @result
       end
       
