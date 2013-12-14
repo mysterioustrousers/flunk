@@ -22,7 +22,7 @@ class Flunk < ActionDispatch::IntegrationTest
   end
 
   def self.flunk(resource, action, failure_reason, &block)
-    name = "FLUNKED! #{resource}: #{action} (#{failure_reason})"
+    name = "Flunked #{resource}: #{action} (#{failure_reason})"
     test(resource, { action: action, name: name }, &block)
   end
 
