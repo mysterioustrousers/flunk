@@ -151,7 +151,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
   def header(key, value)
     @headers ||= {}
-    @headers = self.class.config.read_headers.merge @headers
+    @headers = self.class.config.read_headers.merge @headers if self.class.config.read_headers
     @headers[key] = value
   end
 
