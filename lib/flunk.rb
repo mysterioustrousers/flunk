@@ -183,6 +183,18 @@ class Flunk < ActionDispatch::IntegrationTest
     FileUtils.mkdir_p(@doc_directory) unless File.exists?(@doc_directory)
     @doc_directory
   end
+  
+  def doc_base_url(doc_base_url)
+    @doc_base_url = doc_base_url
+  end
+  
+  def read_config_doc_base_url
+    @doc_base_url
+  end
+
+  def read_doc_base_url
+    self.class.config.read_config_doc_base_url 
+  end
 
 
 
@@ -223,42 +235,61 @@ class Flunk < ActionDispatch::IntegrationTest
   def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response
     body = body.class == String ? JSON.parse(body) : body
     url = File.join(@@config.read_base_url.to_s, path.to_s)
+    
     contents = ""
+    
     contents += "# #{action.humanize}\n\n"
+    
     contents += "#{desc.humanize}\n\n"
+    
     contents += "## Request\n\n"
+    
     if not auth_token.nil?
-      contents += "- Requires Authentication\n"
+      contents += "- **Requires Authentication**\n"
     end
-    contents += "- HTTP Method: #{method.to_s.upcase}\n"
-    contents += "- URL: #{url}\n"
+    
+    contents += "- **Method:** #{method.to_s.upcase}\n"
+    
+    # if not headers.nil?
+    #   headers_strings = headers.map {|k,v| "  - #{k}: #{v}" }
+    #   contents += "- **Headers:**\n#{headers_strings.join("\n")}\n"
+    # end
+    
+    contents += "- **URL:** #{url}\n"
+    
     if not body.nil?
-      contents += "- Body:\n\n```js\n#{JSON.pretty_generate(body)}\n```\n\n"
+      contents += "- **Body:**\n\n```json\n#{JSON.pretty_generate(body)}\n```\n\n"
     else
       contents += "\n"
     end
+    
     contents += "## Response\n\n"
-    contents += "- Status: #{status} #{status.to_s.humanize}\n"
+    
+    contents += "- **Status:** #{Rack::Utils::SYMBOL_TO_STATUS_CODE[status]} #{status.to_s.humanize}\n"
+    
     if not response.nil?
-      contents += "- Body:\n\n```js\n#{JSON.pretty_generate(response)}\n```\n\n"
+      contents += "- **Body:**\n\n```json\n#{JSON.pretty_generate(response)}\n```\n\n"
     else
       contents += "\n"
     end
+    
     contents += "## Example\n\n"
+    
     contents += 
 "```bash
 curl -X #{method.to_s.upcase} \\\n"
     headers.to_h.each do |key, value|      
       contents += 
-"     -H \"#{key}: #{value}\" \\\n"
+"     -H \'#{key}: #{value}\' \\\n"
     end
     if not body.nil?
       contents += 
-"     -d '#{body.to_json}' \\"
+"     -d '#{JSON.pretty_generate(body).gsub /\n/, " \\\n         "}' \\\n"
     end
     contents += 
-"     \"#{url}\"
+"     \"#{ URI::join(read_doc_base_url, url) }\"
 ```"
+
     resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
     file_path = File.join( resource_directory, "#{action.capitalize}.md" )
