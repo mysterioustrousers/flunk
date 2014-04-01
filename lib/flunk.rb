@@ -289,7 +289,34 @@ curl -X #{method.to_s.upcase} \\\n"
     contents += 
 "     \"#{ URI::join(read_doc_base_url, url) }\"
 ```"
-
+    
+    save_doc resource, action, contents
+  end
+  
+  
+  # custom attributes must follow this form:
+  # customer_attributes =
+  #   key:
+  #     kind: [text | code]
+  #     content: [text]
+  def make_custom_doc resource, action, desc, custom_attributes
+    contents = ""
+    contents += "# #{action.humanize}\n\n"
+    contents += "#{desc.humanize}\n\n"
+    
+    custom_attributes.each do |key, value|
+      if value[:kind] == :text
+        contents += "- **#{key.to_s.humanize}:** #{value[:content]}\n"
+      elsif value[:kind] == :code
+        contents += "- **#{key.to_s.humanize}:**\n\n```\n#{value[:content]}\n```\n\n"
+      end
+    end
+    
+    save_doc resource, action, contents
+  end
+  
+  
+  def save_doc resource, action, contents
     resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
     file_path = File.join( resource_directory, "#{action.capitalize}.md" )
