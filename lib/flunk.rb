@@ -50,6 +50,11 @@ class Flunk < ActionDispatch::IntegrationTest
 
       @response = response
 
+      # if response.status == 422
+      #   puts "VALIDATION ERRORS:"
+      #   puts JSON.pretty_generate(JSON.parse(response.body))
+      # end
+      
       assert_response @status, @response.body
 
       unless response.body.blank?
