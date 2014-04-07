@@ -59,9 +59,13 @@ class Flunk < ActionDispatch::IntegrationTest
 
       unless response.body.blank?
         if response.content_type == 'application/json'
-          json = ActiveSupport::JSON.decode(response.body)
-          rec_symbolize( json )
-          @result = json
+          begin
+            json = ActiveSupport::JSON.decode(response.body)
+            rec_symbolize( json )
+            @result = json
+          rescue => e
+            @result = response.body
+          end
         end
       end
 
@@ -263,7 +267,7 @@ class Flunk < ActionDispatch::IntegrationTest
     contents += "- **URL:** #{url}\n"
     
     if not body.nil?
-      contents += "- **Body:**\n\n```json\n#{JSON.pretty_generate(body)}\n```\n\n"
+      contents += "- **Body:**\n\n```json\n#{pretty(body)}\n```\n\n"
     else
       contents += "\n"
     end
@@ -273,7 +277,7 @@ class Flunk < ActionDispatch::IntegrationTest
     contents += "- **Status:** #{Rack::Utils::SYMBOL_TO_STATUS_CODE[status]} #{status.to_s.humanize}\n"
     
     if not response.nil?
-      contents += "- **Body:**\n\n```json\n#{JSON.pretty_generate(response)}\n```\n\n"
+      contents += "- **Body:**\n\n```json\n#{pretty(response)}\n```\n\n"
     else
       contents += "\n"
     end
@@ -289,7 +293,7 @@ curl -X #{method.to_s.upcase} \\\n"
     end
     if not body.nil?
       contents += 
-"     -d '#{JSON.pretty_generate(body).gsub /\n/, " \\\n         "}' \\\n"
+"     -d '#{pretty(body).gsub /\n/, " \\\n         "}' \\\n"
     end
     contents += 
 "     \"#{ URI::join(read_doc_base_url, url) }\"
@@ -326,6 +330,14 @@ curl -X #{method.to_s.upcase} \\\n"
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
     file_path = File.join( resource_directory, "#{action.capitalize}.md" )
     File.open(file_path, 'w') {|f| f.write(contents) }
+  end
+  
+  def pretty json
+    begin
+      pretty_json = JSON.pretty_generate(json)
+    rescue => e
+      pretty_json = json
+    end
   end
 
 end
