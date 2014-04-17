@@ -8,7 +8,7 @@ class Flunk < ActionDispatch::IntegrationTest
       name    = action[:name]
       action  = action[:action]
     end
-  
+
     new_proc = Proc.new do
       @resource ||= resource
       @action   ||= action
@@ -54,7 +54,7 @@ class Flunk < ActionDispatch::IntegrationTest
       #   puts "VALIDATION ERRORS:"
       #   puts JSON.pretty_generate(JSON.parse(response.body))
       # end
-      
+
       assert_response @status, @response.body
 
       unless response.body.blank?
@@ -72,7 +72,7 @@ class Flunk < ActionDispatch::IntegrationTest
       if not @desc.nil?
         make_doc @resource, @action, @desc, @path, @method, @auth_token, @headers, @body, @status, @result
       end
-      
+
     end
 
     @result
@@ -81,7 +81,7 @@ class Flunk < ActionDispatch::IntegrationTest
   def desc(desc)
     @desc = desc
   end
-  
+
   def read_desc
     @desc
   end
@@ -179,7 +179,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
   def doc_directory(doc_directory)
     FileUtils.rm_r(doc_directory) if File.exists?(doc_directory)
-    FileUtils.mkdir_p(doc_directory) 
+    FileUtils.mkdir_p(doc_directory)
     @doc_directory = doc_directory
   end
 
@@ -192,17 +192,17 @@ class Flunk < ActionDispatch::IntegrationTest
     FileUtils.mkdir_p(@doc_directory) unless File.exists?(@doc_directory)
     @doc_directory
   end
-  
+
   def doc_base_url(doc_base_url)
     @doc_base_url = doc_base_url
   end
-  
+
   def read_config_doc_base_url
     @doc_base_url
   end
 
   def read_doc_base_url
-    self.class.config.read_config_doc_base_url 
+    self.class.config.read_config_doc_base_url
   end
 
 
@@ -244,65 +244,65 @@ class Flunk < ActionDispatch::IntegrationTest
   def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response
     body = body.class == String ? JSON.parse(body) : body
     url = File.join(@@config.read_base_url.to_s, path.to_s)
-    
+
     contents = ""
-    
+
     contents += "# #{action.humanize}\n\n"
-    
+
     contents += "#{desc.humanize}\n\n"
-    
+
     contents += "## Request\n\n"
-    
+
     if not auth_token.nil?
       contents += "- **Requires Authentication**\n"
     end
-    
+
     contents += "- **Method:** #{method.to_s.upcase}\n"
-    
+
     # if not headers.nil?
     #   headers_strings = headers.map {|k,v| "  - #{k}: #{v}" }
     #   contents += "- **Headers:**\n#{headers_strings.join("\n")}\n"
     # end
-    
+
     contents += "- **URL:** #{url}\n"
-    
+
     if not body.nil?
       contents += "- **Body:**\n\n```json\n#{pretty(body)}\n```\n\n"
     else
       contents += "\n"
     end
-    
+
     contents += "## Response\n\n"
-    
+
     contents += "- **Status:** #{Rack::Utils::SYMBOL_TO_STATUS_CODE[status]} #{status.to_s.humanize}\n"
-    
+
     if not response.nil?
       contents += "- **Body:**\n\n```json\n#{pretty(response)}\n```\n\n"
     else
       contents += "\n"
     end
-    
+
     contents += "## Example\n\n"
-    
-    contents += 
+
+    contents +=
 "```bash
 curl -X #{method.to_s.upcase} \\\n"
-    headers.to_h.each do |key, value|      
-      contents += 
+    headers.to_h.each do |key, value|
+      contents +=
 "     -H \'#{key}: #{value}\' \\\n"
     end
     if not body.nil?
-      contents += 
+      contents +=
 "     -d '#{pretty(body).gsub /\n/, " \\\n         "}' \\\n"
     end
-    contents += 
+    contents +=
 "     \"#{ URI::join(read_doc_base_url, url) }\"
 ```"
-    
+
     save_doc resource, action, contents
   end
-  
-  
+
+
   # custom attributes must follow this form:
   # customer_attributes =
   #   key:
@@ -312,7 +312,7 @@ curl -X #{method.to_s.upcase} \\\n"
     contents = ""
     contents += "# #{action.humanize}\n\n"
     contents += "#{desc.humanize}\n\n"
-    
+
     custom_attributes.each do |key, value|
       if value[:kind] == :text
         contents += "- **#{key.to_s.humanize}:** #{value[:content]}\n"
@@ -320,18 +320,18 @@ curl -X #{method.to_s.upcase} \\\n"
         contents += "- **#{key.to_s.humanize}:**\n\n```\n#{value[:content]}\n```\n\n"
       end
     end
-    
+
     save_doc resource, action, contents
   end
-  
-  
+
+
   def save_doc resource, action, contents
     resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
     file_path = File.join( resource_directory, "#{action.capitalize}.md" )
     File.open(file_path, 'w') {|f| f.write(contents) }
   end
-  
+
   def pretty json
     begin
       pretty_json = JSON.pretty_generate(json)

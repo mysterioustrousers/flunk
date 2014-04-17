@@ -109,7 +109,7 @@ Then, write tests that SHOULDN'T pass to make sure your app rejects bad requests
 
 ### Documentation Generation
 
-Flunk can generate and organize a folder structure of Markdown files documenting your API calls while it tests. 
+Flunk can generate and organize a folder structure of Markdown files documenting your API calls while it tests.
 If you provide the `desc` for a test, a Markdown file will be created with all the information about that particular
 API endpoint. Finally, it will organize each Markdown file into a folder named for the resource it is acting upon.
 
