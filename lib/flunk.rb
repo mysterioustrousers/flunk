@@ -5,8 +5,8 @@ class Flunk < ActionDispatch::IntegrationTest
   def self.test(resource, action, &block)
 
     if action.class == Hash
-      name    = action[:name]
-      action  = action[:action]
+      name          = action[:name]
+      action        = action[:action]
     end
 
     new_proc = Proc.new do
@@ -50,12 +50,21 @@ class Flunk < ActionDispatch::IntegrationTest
 
       @response = response
 
-      # if response.status == 422
-      #   puts "VALIDATION ERRORS:"
-      #   puts JSON.pretty_generate(JSON.parse(response.body))
-      # end
+      expected_status_code = Rack::Utils::SYMBOL_TO_STATUS_CODE[@status]
 
-      assert_response @status, @response.body
+      if response.status == 422 and expected_status_code != 422
+        puts "VALIDATION ERRORS:"
+        puts JSON.pretty_generate(JSON.parse(response.body))
+      end
+
+      if response.status.to_i != expected_status_code
+        puts "STATUS MISMATCH:"
+        puts "path: #{@path}"
+        puts "headers: #{@headers.to_json}"
+        puts "body: #{@body}"
+      end
+
+      assert_response @status
 
       unless response.body.blank?
         if response.content_type == 'application/json'
