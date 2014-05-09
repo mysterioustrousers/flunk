@@ -254,6 +254,10 @@ class Flunk < ActionDispatch::IntegrationTest
     body = body.class == String ? JSON.parse(body) : body
     url = File.join(@@config.read_base_url.to_s, path.to_s)
 
+    headers ||= {}
+    headers["Content-Type"] = "application/json"
+    headers["Accept"]       = "application/json"
+
     contents = ""
 
     contents += "# #{action.humanize}\n\n"
@@ -302,7 +306,7 @@ curl -X #{method.to_s.upcase} \\\n"
     end
     if not body.nil?
       contents +=
-"     -d '#{pretty(body).gsub /\n/, " \\\n         "}' \\\n"
+"     -d '#{pretty(body).gsub /\n/, "\n         "}' \\\n"
     end
     contents +=
 "     \"#{ URI::join(read_doc_base_url, url) }\"
