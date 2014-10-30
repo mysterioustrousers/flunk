@@ -38,11 +38,11 @@ class Flunk < ActionDispatch::IntegrationTest
       @method     ||= self.class.config.read_method
       @ssl        ||= self.class.config.read_ssl
 
+      @headers ||= {}
+
       if @username || @password
-        @headers ||= {}
         @headers["HTTP_AUTHORIZATION"] = "Basic #{Base64.encode64(@username.to_s + ":" + @password.to_s)}".strip
       elsif @auth_token
-        @headers ||= {}
         @headers["HTTP_AUTHORIZATION"] = "Token token=\"#{@auth_token}\"".strip
       end
 
@@ -104,6 +104,8 @@ class Flunk < ActionDispatch::IntegrationTest
   end
 
   def path(path)
+    path = path[0] == "/" ? path : "/#{path}"
+    path = path[-5..-1] == ".json" ? path : "#{path}.json"
     @path = path
   end
 
