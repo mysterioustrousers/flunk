@@ -104,9 +104,10 @@ class Flunk < ActionDispatch::IntegrationTest
   end
 
   def path(path)
-    path = path[0] == "/" ? path : "/#{path}"
-    path = path[-5..-1] == ".json" ? path : "#{path}.json"
-    @path = path
+    uri = URI.parse path
+    uri.path = uri.path[0] == "/" ? uri.path : "/#{uri.path}"
+    uri.path = uri.path[-5..-1] == ".json" ? uri.path : "#{uri.path}.json"
+    @path = uri.to_s
   end
 
   def read_path
