@@ -67,13 +67,13 @@ class Flunk < ActionDispatch::IntegrationTest
       assert_response @status
 
       unless response.body.blank?
+        @result = response.body
         if response.content_type == 'application/json'
           begin
             json = ActiveSupport::JSON.decode(response.body)
             rec_symbolize( json )
             @result = json
           rescue => e
-            @result = response.body
           end
         end
       end
