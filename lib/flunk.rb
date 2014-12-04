@@ -214,7 +214,7 @@ class Flunk < ActionDispatch::IntegrationTest
   end
 
   def read_doc_base_url
-    self.class.config.read_config_doc_base_url
+    self.class.config.read_config_doc_base_url || "http://www.example.com/"
   end
 
 

@@ -118,6 +118,7 @@ customize this by putting this into an initializer:
 
     if Rails.env.test?
       Flunk.config.doc_directory "docs/firehose-docs/api"
+      Flunk.config.doc_base_url "https://api.firehoseapp.com"
     end
 
 The config method on the Flunk class returns a global Flunk instance, so you can set any property on it to be used
@@ -129,7 +130,6 @@ each app and each app has Flunk dump the docs into a folder for that app. The Fi
 that contains all our documentation for all of our apps.
 
 Here's an example of the Firehose Github repo that is our API docs: https://github.com/mysterioustrousers/firehose-docs
-
 
 ### Testing
 
