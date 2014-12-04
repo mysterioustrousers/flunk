@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name                = "flunk"
-  s.version             = "0.0.13"
+  s.version             = "0.0.14"
   s.platform            = Gem::Platform::RUBY
   s.authors             = ["Adam Kirk"]
   s.email               = %q{atomkirk@gmail.com}
