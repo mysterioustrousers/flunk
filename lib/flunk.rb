@@ -5,13 +5,16 @@ class Flunk < ActionDispatch::IntegrationTest
   def self.test(resource, action, &block)
 
     if action.class == Hash
-      name          = action[:name]
-      action        = action[:action]
+      hash          = action
+      name          = hash[:name]
+      action        = hash[:action]
+      flunk_reason  = hash[:flunk_reason]
     end
 
     new_proc = Proc.new do
-      @resource ||= resource
-      @action   ||= action
+      @resource     ||= resource
+      @action       ||= action
+      @flunk_reason ||= flunk_reason
       instance_eval(&block)
       result
       instance_eval(&@after) unless @after.nil?
@@ -23,7 +26,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
   def self.flunk(resource, action, failure_reason, &block)
     name = "Flunked #{resource}: #{action} (#{failure_reason})"
-    test(resource, { action: action, name: name }, &block)
+    test(resource, { action: action, name: name, flunk_reason: failure_reason }, &block)
   end
 
 
@@ -77,9 +80,8 @@ class Flunk < ActionDispatch::IntegrationTest
           end
         end
       end
-
       if not @desc.nil?
-        make_doc @resource, @action, @desc, @path, @method, @auth_token, @headers, @body, @status, @result
+        make_doc @resource, @action, @desc, @path, @method, @auth_token, @headers, @body, @status, @result, @flunk_reason
       end
 
     end
@@ -259,9 +261,10 @@ class Flunk < ActionDispatch::IntegrationTest
 
   @@type_token = "<<type>>"
 
-  def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response
+  def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response, flunk_reason
+    path =  path.to_s.gsub(/\b\d+\b/, "__")
     body = body.class == String ? JSON.parse(body) : body
-    url = File.join(@@config.read_base_url.to_s, path.to_s).gsub(/\/\d*?\//, "/:id/")
+    url = File.join(@@config.read_base_url.to_s, path)
 
     headers ||= {}
     headers["Content-Type"] = "application/json"
@@ -321,7 +324,7 @@ curl -X #{method.to_s.upcase} \\\n"
 "     \"#{ URI::join(read_doc_base_url, url) }\"
 ```"
 
-    save_doc resource, action, contents
+    save_doc resource, action, contents, flunk_reason
   end
 
 
@@ -347,10 +350,10 @@ curl -X #{method.to_s.upcase} \\\n"
   end
 
 
-  def save_doc resource, action, contents
+  def save_doc resource, action, contents, flunk_reason
     resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
-    file_path = File.join( resource_directory, "#{action.capitalize}.md" )
+    file_path = File.join( resource_directory, "#{action.capitalize}#{flunk_reason.present? ? " - " + flunk_reason.chomp(".") : ""}.md" )
     File.open(file_path, 'w') {|f| f.write(contents) }
   end
 
@@ -369,9 +372,9 @@ curl -X #{method.to_s.upcase} \\\n"
     while queue.count > 0
       current = queue.shift
 
-      parent  = current[:parent]
-      key     = current[:key]
-      value   = current[:value]
+      parent = current[:parent]
+      key    = current[:key]
+      value  = current[:value]
 
       if value.kind_of?(Hash)
         for k,v in value
