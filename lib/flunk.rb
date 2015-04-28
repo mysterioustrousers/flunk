@@ -253,9 +253,15 @@ class Flunk < ActionDispatch::IntegrationTest
     nil
   end
 
+
+
+  # docs
+
+  @@type_token = "<<type>>"
+
   def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response
     body = body.class == String ? JSON.parse(body) : body
-    url = File.join(@@config.read_base_url.to_s, path.to_s)
+    url = File.join(@@config.read_base_url.to_s, path.to_s).gsub(/\/\d*?\//, "/:id/")
 
     headers ||= {}
     headers["Content-Type"] = "application/json"
@@ -349,11 +355,50 @@ curl -X #{method.to_s.upcase} \\\n"
   end
 
   def pretty json
+    generic = values_to_types json
     begin
-      pretty_json = JSON.pretty_generate(json)
+      pretty_json = JSON.pretty_generate(generic).gsub(/"#{@@type_token}(.*?)#{@@type_token}"/, "\\1")
     rescue => e
-      pretty_json = json
+      pretty_json = generic
     end
+  end
+
+  def values_to_types json
+    copy = Marshal.load(Marshal.dump(json))
+    queue = [{parent: nil, key: nil, value: copy}]
+    while queue.count > 0
+      current = queue.shift
+
+      parent  = current[:parent]
+      key     = current[:key]
+      value   = current[:value]
+
+      if value.kind_of?(Hash)
+        for k,v in value
+          queue.push parent: value, key: k, value: v
+        end
+
+      elsif value.kind_of?(Array)
+        value.each_with_index do |v, i|
+          queue.push parent: value, key: i, value: v
+        end
+
+      else
+        parent[key] = value_to_type value
+
+      end
+    end
+
+    copy
+  end
+
+  def value_to_type value
+    if value.class == Fixnum
+      return "#{@@type_token}Integer#{@@type_token}"
+    elsif value.class == FalseClass || value.class == TrueClass
+      return "#{@@type_token}Boolean#{@@type_token}"
+    end
+    return "#{@@type_token}#{value.class}#{@@type_token}"
   end
 
 end
