@@ -262,7 +262,7 @@ class Flunk < ActionDispatch::IntegrationTest
   @@type_token = "<<type>>"
 
   def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response, flunk_reason
-    path =  path.to_s.gsub(/\b\d+\b/, "__")
+    path =  path.to_s.gsub(/\b\d+\b/, ":id")
     body = body.class == String ? JSON.parse(body) : body
     url = File.join(@@config.read_base_url.to_s, path)
 
@@ -358,7 +358,8 @@ curl -X #{method.to_s.upcase} \\\n"
   end
 
   def pretty json
-    generic = values_to_types json
+    simplified = simplify json
+    generic = values_to_types simplified
     begin
       pretty_json = JSON.pretty_generate(generic).gsub(/"#{@@type_token}(.*?)#{@@type_token}"/, "\\1")
     rescue => e
@@ -393,6 +394,35 @@ curl -X #{method.to_s.upcase} \\\n"
     end
 
     copy
+  end
+
+  # makes sure that lists of things only have 1 copy, so docs don't get huge and redundent
+  def simplify(json)
+    copy = Marshal.load(Marshal.dump(json))
+    queue = [{parent: nil, key: nil, value: copy}]
+    while queue.count > 0
+      current = queue.shift
+
+      parent = current[:parent]
+      key    = current[:key]
+      value  = current[:value]
+
+      if value.kind_of?(Hash)
+        for k,v in value
+          queue.push parent: value, key: k, value: v
+        end
+
+      elsif value.kind_of?(Array) and value.count > 0
+        value.slice!(1, value.count - 1)
+        value.each_with_index do |v, i|
+          queue.push parent: value, key: i, value: v
+        end
+
+      end
+    end
+
+    copy
+
   end
 
   def value_to_type value
