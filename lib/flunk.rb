@@ -262,7 +262,7 @@ class Flunk < ActionDispatch::IntegrationTest
   @@type_token = "<<type>>"
 
   def make_doc resource, action, desc, path, method, auth_token, headers, body, status, response, flunk_reason
-    path =  path.to_s.gsub(/\b\d+\b/, ":id")
+    path =  path.to_s.gsub(/\/\d+\b/, ":id")
     body = body.class == String ? JSON.parse(body) : body
     url = File.join(@@config.read_base_url.to_s, path)
 
