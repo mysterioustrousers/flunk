@@ -350,7 +350,7 @@ curl -X #{method.to_s.upcase} \\\n"
   end
 
 
-  def save_doc resource, action, contents, flunk_reason
+  def save_doc resource, action, contents, flunk_reason = nil
     resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
     file_path = File.join( resource_directory, "#{action.capitalize}#{flunk_reason.present? ? " - " + flunk_reason.chomp(".") : ""}.md" )
@@ -387,7 +387,7 @@ curl -X #{method.to_s.upcase} \\\n"
           queue.push parent: value, key: i, value: v
         end
 
-      else
+      elsif parent
         parent[key] = value_to_type value
 
       end
