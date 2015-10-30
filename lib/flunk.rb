@@ -309,10 +309,16 @@ class Flunk < ActionDispatch::IntegrationTest
 
     contents += "## Example\n\n"
 
+
+
     contents +=
 "```bash
 curl -X #{method.to_s.upcase} \\\n"
     headers.to_h.each do |key, value|
+      # take token out of header
+      if key == "HTTP_AUTHORIZATION"
+        value = "Token token=\"<access_token>\""
+      end
       contents +=
 "     -H \'#{key}: #{value}\' \\\n"
     end
@@ -367,6 +373,7 @@ curl -X #{method.to_s.upcase} \\\n"
     end
   end
 
+  # instead of data, show the type, this prevents the docs from changing every time tests are run.
   def values_to_types json
     copy = Marshal.load(Marshal.dump(json))
     queue = [{parent: nil, key: nil, value: copy}]
@@ -425,7 +432,7 @@ curl -X #{method.to_s.upcase} \\\n"
 
   end
 
-  def value_to_type value
+  def value_to_type(value)
     if value.class == Fixnum
       return "#{@@type_token}Integer#{@@type_token}"
     elsif value.class == FalseClass || value.class == TrueClass
