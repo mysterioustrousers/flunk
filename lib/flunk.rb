@@ -74,7 +74,7 @@ class Flunk < ActionDispatch::IntegrationTest
         if response.content_type == 'application/json'
           begin
             json = ActiveSupport::JSON.decode(response.body)
-            rec_symbolize( json )
+            json = json.deep_symbolize_keys if json.class == Hash
             @result = json
           rescue => e
           end
@@ -243,20 +243,6 @@ class Flunk < ActionDispatch::IntegrationTest
 
 
 
-  # helpers
-
-  def rec_symbolize(obj)
-    if obj.class == Hash
-      obj.symbolize_keys!
-      obj.map {|k,v| rec_symbolize(v) }
-    elsif obj.class == Array
-      obj.map {|v| rec_symbolize(v) }
-    end
-    nil
-  end
-
-
-
   # docs
 
   @@type_token = "<<type>>"
@@ -359,7 +345,7 @@ curl -X #{method.to_s.upcase} \\\n"
   def save_doc resource, action, contents, flunk_reason = nil
     resource_directory = File.join( read_doc_directory, resource.pluralize.capitalize )
     FileUtils.mkdir_p(resource_directory) unless File.exists?( resource_directory )
-    file_path = File.join( resource_directory, "#{action.capitalize}#{flunk_reason.present? ? " - " + flunk_reason.chomp(".") : ""}.md" )
+    file_path = File.join( resource_directory, "#{action.capitalize}#{flunk_reason.present? ? " - " + flunk_reason.chomp(".").gsub(/[\/]/, ",") : ""}.md" )
     File.open(file_path, 'w') {|f| f.write(contents) }
   end
 
