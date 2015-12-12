@@ -71,7 +71,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       unless response.body.blank?
         @result = response.body
-        if response.content_type == 'application/json'
+        if response.content_type.to_s.include? 'json'
           begin
             json = ActiveSupport::JSON.decode(response.body)
             json = json.deep_symbolize_keys if json.class == Hash
