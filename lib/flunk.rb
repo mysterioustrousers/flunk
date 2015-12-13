@@ -41,7 +41,11 @@ class Flunk < ActionDispatch::IntegrationTest
       @method     ||= self.class.config.read_method
       @ssl        ||= self.class.config.read_ssl
 
-      @headers ||= {}
+      @headers = {
+        "CONTENT_TYPE" => "application/json",
+        "HTTP_ACCEPT" => "application/json"
+      }.merge!(@headers || {})
+      # @headers ||= {}
 
       if @username || @password
         @headers["HTTP_AUTHORIZATION"] = "Basic #{Base64.encode64(@username.to_s + ":" + @password.to_s)}".strip
@@ -49,9 +53,12 @@ class Flunk < ActionDispatch::IntegrationTest
         @headers["HTTP_AUTHORIZATION"] = "Token token=\"#{@auth_token}\"".strip
       end
 
+      @body = @body.to_json if @body.present?
+
       send @method, @path, @body, @headers
 
       @response = response
+
 
       expected_status_code = Rack::Utils::SYMBOL_TO_STATUS_CODE[@status]
 
@@ -108,7 +115,7 @@ class Flunk < ActionDispatch::IntegrationTest
   def path(path)
     uri = URI.parse path
     uri.path = uri.path[0] == "/" ? uri.path : "/#{uri.path}"
-    uri.path = uri.path[-5..-1] == ".json" ? uri.path : "#{uri.path}.json"
+    # uri.path = uri.path[-5..-1] == ".json" ? uri.path : "#{uri.path}.json"
     @path = uri.to_s
   end
 
