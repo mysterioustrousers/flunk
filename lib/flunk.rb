@@ -55,7 +55,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       @body = @body.to_json if @body.present?
 
-      send @method, @path, @body, @headers
+      send @method, @path, params: @body, headers: @headers
 
       @response = response
 
