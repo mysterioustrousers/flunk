@@ -1,9 +1,8 @@
-require 'rails/test_help'
+# require 'rails/test_help'
 
 class Flunk < ActionDispatch::IntegrationTest
 
   def self.test(resource, action, &block)
-
     if action.class == Hash
       hash          = action
       name          = hash[:name]
