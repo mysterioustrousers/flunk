@@ -80,7 +80,11 @@ class Flunk < ActionDispatch::IntegrationTest
         if response.content_type.to_s.include? 'json'
           begin
             json = ActiveSupport::JSON.decode(response.body)
-            json = json.with_indifferent_access if json.class == Hash
+            if json.class == Hash
+              json = json.with_indifferent_access
+            elsif json.class == Array
+              json = json.map {|h| h.with_indifferent_access }
+            end
             @result = json
           rescue => e
           end
