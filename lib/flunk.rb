@@ -42,7 +42,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       @headers = {
         "CONTENT_TYPE" => "application/json",
-        # "HTTP_ACCEPT" => "application/json"
+        "HTTP_ACCEPT" => "application/json"
       }.merge!(@headers || {})
       # @headers ||= {}
 
@@ -52,9 +52,9 @@ class Flunk < ActionDispatch::IntegrationTest
         @headers["HTTP_AUTHORIZATION"] = "Token token=\"#{@auth_token}\"".strip
       end
 
-      @body = @body.to_json if @body.present?
+      # @body = @body.to_json if @body.present?
 
-      send @method, @path, params: @body, headers: @headers
+      send @method, @path, @body, headers: @headers
 
       @response = response
 
