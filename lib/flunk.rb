@@ -42,7 +42,7 @@ class Flunk < ActionDispatch::IntegrationTest
 
       @headers = {
         "CONTENT_TYPE" => "application/json",
-        "HTTP_ACCEPT" => "application/json"
+        # "HTTP_ACCEPT" => "application/json"
       }.merge!(@headers || {})
       # @headers ||= {}
 
