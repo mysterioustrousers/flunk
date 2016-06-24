@@ -263,8 +263,6 @@ class Flunk < ActionDispatch::IntegrationTest
     url = File.join(@@config.read_base_url.to_s, path)
 
     headers ||= {}
-    headers["Content-Type"] = "application/json"
-    headers["Accept"]       = "application/json"
 
     contents = ""
 
@@ -314,6 +312,10 @@ curl -X #{method.to_s.upcase} \\\n"
       # take token out of header
       if key == "HTTP_AUTHORIZATION"
         value = "Token token=\"<access_token>\""
+      elsif key == "HTTP_ACCEPT"
+        key = "Accept"
+      elsif key == "CONTENT_TYPE"
+        key = "Content-Type"
       end
       contents +=
 "     -H \'#{key}: #{value}\' \\\n"
